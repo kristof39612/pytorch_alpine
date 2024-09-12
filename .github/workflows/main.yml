@@ -10,6 +10,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        submodules: true  # Ensure submodules are initialized
+        fetch-depth: 0    # Fetch all history for a proper versioning
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -21,7 +24,9 @@ jobs:
         docker run --rm -v $(pwd):/app -w /app python:3.11-alpine \
         /bin/sh -c "
         apk add --no-cache bash git lapack-dev ninja openblas-dev linux-headers musl-dev libffi-dev gfortran cmake build-base &&
+        git config --global --add safe.directory /app &&  # Add /app as a safe directory
         python -m pip install --upgrade pip setuptools wheel &&
+        git submodule update --init --recursive &&  # Initialize submodules
         python setup.py bdist_wheel"
         
     - name: List wheel files

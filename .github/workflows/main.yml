@@ -17,15 +17,18 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'  # Specify the Python version you want to use
+        python-version: '3.x'  # Specify the Python version you want to use
 
     - name: Build wheel in Alpine Linux
       run: |
-        docker run --rm -v $(pwd):/app -w /app python:3.11-alpine \
+        docker run --rm -v $(pwd):/app -w /app python:3.x-alpine \
         /bin/sh -c "
         apk add --no-cache bash git lapack-dev ninja openblas-dev linux-headers musl-dev libffi-dev gfortran cmake build-base &&
         git config --global --add safe.directory /app &&  # Add /app as a safe directory
-        python -m pip install --upgrade pip setuptools wheel &&
+        python -m pip install --no-cache --upgrade pip --trusted-host pypi.org &&
+        python -m pip install --no-cache numpy==1.26.4 --trusted-host pypi.org &&
+        python -m pip install --no-cache --upgrade setuptools --trusted-host pypi.org &&
+        python -m pip install --no-cache pyyaml typing-extensions --trusted-host pypi.org &&
         git submodule update --init --recursive &&  # Initialize submodules
         python setup.py bdist_wheel"
         
